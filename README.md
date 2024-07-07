@@ -489,6 +489,83 @@ check pod/namespace status using kubectl commands or k9s
 ![image](https://github.com/rajath-optit/Application_python_using-_Kompose_with_Statefulset/assets/128474801/db7f77f5-bc74-4e46-9eaa-c9ee4581fc6a)
 
 running
+
+### To test whether a StatefulSet is working correctly in Kubernetes, you can follow these steps. These methods help you verify if the StatefulSet's features are functioning as expected.
+
+### **Testing StatefulSet Functionality**
+
+| **Test**                | **Command/Action**                                         | **Description**                                                                                           |
+|------------------------|------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| **Check StatefulSet Pods** | `kubectl get pods -l app=your-statefulset-label`         | Verify that the StatefulSet pods are running and have the `Running` status.                            |
+| **Verify Pod Names**    | `kubectl get pods -l app=your-statefulset-label`         | Check that the pod names follow the StatefulSet naming convention (e.g., `my-service-0`, `my-service-1`). |
+| **Check Pod Logs**      | `kubectl logs my-service-0`                              | Review the logs to see if the application inside the pods is functioning as expected.                   |
+| **Inspect Pod Status**  | `kubectl describe pod my-service-0`                       | Inspect details of the pod, including events and conditions.                                            |
+| **Test Network Connectivity** | `kubectl exec -it my-service-0 -- ping my-service-1`   | Check if the StatefulSet pods can communicate with each other.                                           |
+| **Verify Persistent Storage** | `kubectl exec -it my-service-0 -- df -h`               | Ensure the volume mounts are present and that the storage is accessible.                                 |
+| **Check Service Endpoints** | `kubectl get endpoints my-service`                       | Ensure the endpoints for the service are correct and match the StatefulSet pods.                         |
+| **Perform Scale Test**  | `kubectl scale statefulset my-service --replicas=3`       | Test scaling by changing the number of replicas and verify if the new pods are created and function.    |
+| **Test StatefulSet Rolling Update** | `kubectl rollout restart statefulset my-service` | Verify that the StatefulSet performs rolling updates correctly.                                          |
+| **Check Headless Service** | `kubectl get svc my-service`                            | Ensure the headless service is created for the StatefulSet, and check the `clusterIP` is set to `None`.  |
+| **Verify Pod Ordering** | `kubectl get pods -o wide`                               | Check the order in which the pods are created and deleted (they should follow the StatefulSet sequence).|
+| **Perform Data Persistence Test** | `kubectl exec -it my-service-0 -- sh`                | Create some data in the pod and restart the StatefulSet to verify if the data persists.                 |
+
+### **Detailed Commands and Actions**
+
+| **Test**                      | **Command**                                                | **Expected Outcome**                                            |
+|------------------------------|-----------------------------------------------------------|---------------------------------------------------------------|
+| **Check StatefulSet Pods**   | `kubectl get pods -l app=your-statefulset-label`         | Pods should be in the `Running` state.                        |
+| **Verify Pod Names**        | `kubectl get pods -l app=your-statefulset-label`         | Pods should have sequential names like `my-service-0`, `my-service-1`. |
+| **Check Pod Logs**          | `kubectl logs my-service-0`                              | Logs should indicate the application is running correctly.    |
+| **Inspect Pod Status**      | `kubectl describe pod my-service-0`                       | Should show `Running` status and check for any warning/errors. |
+| **Test Network Connectivity** | `kubectl exec -it my-service-0 -- ping my-service-1`   | Should receive ping responses from other pods.               |
+| **Verify Persistent Storage** | `kubectl exec -it my-service-0 -- df -h`                 | Should show mounted persistent volumes.                      |
+| **Check Service Endpoints**  | `kubectl get endpoints my-service`                        | Should list the StatefulSet pods as endpoints.                |
+| **Perform Scale Test**      | `kubectl scale statefulset my-service --replicas=3`       | New pods should be created, and the scale operation should be successful. |
+| **Test StatefulSet Rolling Update** | `kubectl rollout restart statefulset my-service` | New pods should be created and old pods should be deleted in order. |
+| **Check Headless Service**  | `kubectl get svc my-service`                              | Service should have `clusterIP: None` and be of type `ClusterIP`. |
+| **Verify Pod Ordering**     | `kubectl get pods -o wide`                                | Pods should be created and deleted in a sequential order.      |
+| **Perform Data Persistence Test** | `kubectl exec -it my-service-0 -- sh`                 | Data should persist through pod restarts or StatefulSet updates. |
+
+### **Example Commands**
+```
+# Check if StatefulSet pods are running
+kubectl get pods -l app=my-service
+
+# Verify pod names and their order
+kubectl get pods -l app=my-service
+
+# Check logs of the first pod
+kubectl logs my-service-0
+
+# Inspect the status of the first pod
+kubectl describe pod my-service-0
+
+# Test network connectivity between pods
+kubectl exec -it my-service-0 -- ping my-service-1
+
+# Verify persistent storage in the first pod
+kubectl exec -it my-service-0 -- df -h
+
+# Check the endpoints of the service
+kubectl get endpoints my-service
+
+# Scale the StatefulSet
+kubectl scale statefulset my-service --replicas=3
+
+# Restart the StatefulSet for a rolling update
+kubectl rollout restart statefulset my-service
+
+# Check the headless service
+kubectl get svc my-service
+
+# Check the pod ordering and details
+kubectl get pods -o wide
+
+# Perform a data persistence test
+kubectl exec -it my-service-0 -- sh
+```
+
+These tests cover various aspects of a StatefulSet's functionality, including pod management, networking, storage, and updates.
 ------------------------------------------end---------------------------------------------------
 
 check spring application next :)
