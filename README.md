@@ -174,3 +174,142 @@ Repeat similar steps for all other microservices (consumers).
     ```
 
 This setup ensures that your MySQL database runs as a StatefulSet with persistent storage, while other services run as Deployments. Adjustments might be necessary depending on the specifics of your setup and requirements.
+
+----------------------------------------------------------------------------------------over-view-----------------------------------------------------------------------------------------------
+
+# extra steps used:
+
+1. Organize and Modify Manifests
+Since Kompose has generated the manifests, you might need to make some adjustments:
+
+Organize Manifests
+Move the generated manifests into separate directories for better organization:
+```
+mkdir -p ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/statefulset
+mkdir -p ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment
+mkdir -p ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/service
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/mysql-db-deployment.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/statefulset/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/mysql-db-service.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/service/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/producer-deployment.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/producer-service.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/service/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/rabbitmq-deployment.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/rabbitmq-service.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/service/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/consumer-one-deployment.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/consumer-two-deployment.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/consumer-three-deployment.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/consumer-four-deployment.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/db-persistentvolumeclaim.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/statefulset/
+mv ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/mysql-db-claim1-persistentvolumeclaim.yaml ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/statefulset/
+```
+before organishing converted kompose will look like below image
+![image](https://github.com/rajath-optit/Application_python_using-_Kompose_with_Statefulset/assets/128474801/c75e80e0-3607-46f0-9bb5-82345c8606eb)
+
+after organishing converted kompose will look like below image
+![image](https://github.com/rajath-optit/Application_python_using-_Kompose_with_Statefulset/assets/128474801/7ba4a823-b9d7-400d-8337-58fb7d8f81e4)
+
+
+step2:
+Modify MySQL StatefulSet and PVC
+mysql-db-deployment.yaml should be changed to a StatefulSet. You need to manually adjust it since Kompose generates a Deployment for MySQL. Here’s an example StatefulSet configuration:
+
+```
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-db
+spec:
+  serviceName: "mysql"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-db
+  template:
+    metadata:
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_DATABASE
+          value: "ims"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "pesuims"
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-persistent-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+```
+Replace mysql-db-deployment.yaml with the above StatefulSet configuration and remove the mysql-db-claim1-persistentvolumeclaim.yaml file if it's redundant.
+
+Update mysql-db-service.yaml to ensure it matches the StatefulSet:
+
+if service is already looking like this below then change it as per statefulSet requirement.
+```
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql-db
+  name: mysql-db
+spec:
+  ports:
+  - name: "3406"
+    port: 3406
+    targetPort: 3306
+  selector:
+    io.kompose.service: mysql-db
+status:
+  loadBalancer: {}
+```
+
+it should look like below
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  ports:
+    - port: 3306
+  clusterIP: None
+  selector:
+    app: mysql-db
+```
+2. Apply the Manifests
+After organizing and modifying the manifests, apply them to your Kubernetes cluster:
+
+```
+# Apply StatefulSet and PVC
+kubectl apply -f ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/statefulset/
+
+# Apply Services
+kubectl apply -f ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/service/
+
+# Apply Deployments
+kubectl apply -f ~/Application_python_using-_Kompose_with_Statefulset/kubernetes/manifest/deployment/
+```
+
+3. Verify the Deployment
+Check the status of the resources you deployed:
+```
+kubectl get pods
+kubectl get svc
+kubectl get statefulsets
+kubectl get pvc
+```
