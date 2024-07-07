@@ -437,6 +437,21 @@ kubectl get statefulsets
 kubectl get pvc
 ```
 ------------------------------------------ends------------------------------------------------------
+access application
+ClusterIP Service
+If the service is of type ClusterIP, it is only accessible from within the cluster. You can use kubectl port-forward to access it:
+
+Find the service name and port:
+
+kubectl get services --namespace=kompose-statefulset
+Forward a local port to the service port:
+
+kubectl port-forward svc/<service-name> <local-port>:<service-port> --namespace=kompose-statefulset
+Example:
+
+kubectl port-forward svc/producer 8080:5000 --namespace=kompose-statefulset
+Access the service at http://localhost:8080.
+
 # Additional
 
 Find and replace command ubuntu:
