@@ -1,5 +1,6 @@
 # Microservice communication with RabbitMQ using compose
-To convert your Docker Compose setup to Kubernetes StatefulSets using `kompose`, follow these steps:
+
+# NOTE: This is basic kompose usage example with statefulSet, any more adjustment can be made as per your requirement.This should help beginners understand how to get started with your application and the role of StatefulSets in Kubernetes.
 
 # NOTE:
  ```
@@ -19,6 +20,8 @@ Unique Pod Identity:
 
 Each pod in a StatefulSet has a unique identity that is comprised of a stable, unique hostname. This identity is important for applications like MySQL that might require each instance to be uniquely identifiable.
 ```
+
+To convert your Docker Compose setup to Kubernetes StatefulSets using `kompose`, follow these steps:
 
 1. **Install Kompose**: Ensure you have `kompose` installed. You can install it via the following command:
     ```sh
@@ -69,7 +72,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image: mysql:8.0
+        image: mysql:5.7
         env:
         - name: MYSQL_DATABASE
           value: "ims"
