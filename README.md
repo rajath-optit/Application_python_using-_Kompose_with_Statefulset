@@ -253,6 +253,31 @@ spec:
 Replace mysql-db-deployment.yaml with the above StatefulSet configuration and remove the mysql-db-claim1-persistentvolumeclaim.yaml file if it's redundant.
 
 Update mysql-db-service.yaml to ensure it matches the StatefulSet:
+
+if service is already looking like this below then change it as per statefulSet requirement.
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mysql-db
+  name: mysql-db
+spec:
+  ports:
+  - name: "3406"
+    port: 3406
+    targetPort: 3306
+  selector:
+    io.kompose.service: mysql-db
+status:
+  loadBalancer: {}
+
+it should look like below
+
 ```
 apiVersion: v1
 kind: Service
