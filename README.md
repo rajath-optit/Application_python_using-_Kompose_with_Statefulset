@@ -255,7 +255,7 @@ Replace mysql-db-deployment.yaml with the above StatefulSet configuration and re
 Update mysql-db-service.yaml to ensure it matches the StatefulSet:
 
 if service is already looking like this below then change it as per statefulSet requirement.
-
+```
 apiVersion: v1
 kind: Service
 metadata:
@@ -275,6 +275,7 @@ spec:
     io.kompose.service: mysql-db
 status:
   loadBalancer: {}
+```
 
 it should look like below
 
