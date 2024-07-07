@@ -291,6 +291,129 @@ spec:
   selector:
     app: mysql-db
 ```
+
+
+### in each file manually add images that has been pushed into docker hub
+```
+Producer:
+
+docker build -t producer-image -f producer/Dockerfile .
+Consumer One:
+
+docker build -t consumer-one-image -f consumer_one/Dockerfile .
+Consumer Two:
+
+docker build -t consumer-two-image -f consumer_two/Dockerfile .
+Consumer Three:
+
+docker build -t consumer-three-image -f consumer_three/Dockerfile .
+Consumer Four:
+
+docker build -t consumer-four-image -f consumer_four/Dockerfile .
+```
+## individual build step and correct command structure.
+After building the images, you can run the application using Docker Compose. Update your docker-compose.yml to use these images:
+
+## TAG & Push
+# Log in to Docker Hub
+docker login
+```
+# Push the images to Docker Hub
+docker tag producer-image bharathoptdocker/python-producer
+docker push bharathoptdocker/python-producer
+
+docker tag consumer-one-image bharathoptdocker/python-consumer-one
+docker push bharathoptdocker/python-consumer-one
+
+docker tag consumer-two-image bharathoptdocker/python-consumer-two
+docker push bharathoptdocker/python-consumer-two
+
+docker tag consumer-three-image bharathoptdocker/python-consumer-three
+docker push bharathoptdocker/python-consumer-three
+
+docker tag consumer-four-image bharathoptdocker/python-consumer-four
+docker push bharathoptdocker/python-consumer-four
+```
+
+# The summary table for troubleshooting Docker image build issues:
+
+### **Docker Build Troubleshooting Summary**
+
+| **Step**                     | **Command/Action**                               | **Description**                                      |
+|------------------------------|--------------------------------------------------|------------------------------------------------------|
+| **Check Directory Structure** | Ensure `producer`, `consumer_one`, etc., exist  | Verify the paths and contents of the directories.   |
+| **Verify Dockerfile Paths**  | Inspect `COPY` commands in Dockerfiles          | Ensure paths are correct and point to the right directories. |
+| **Check `.dockerignore`**    | Review `.dockerignore` file                     | Ensure it doesn’t exclude necessary files or directories. |
+| **Rebuild Docker Images**    | `docker builder prune` and build images again   | Clear cache and rebuild images with corrected paths. |
+| **Example Dockerfiles**      | Review Dockerfile examples                      | Ensure Dockerfiles are correct for each service.     |
+| **Validate Build Command**   | `docker build -t my-service ./service`          | Run build commands from the correct directory.       |
+| **Verify Docker Build Context** | Ensure you're in the root directory of the project | The build context must include Dockerfile and source directories. |
+
+### **Commands for Each Step**
+
+| **Step**                     | **Commands**                                     |
+|------------------------------|--------------------------------------------------|
+| **Check Directory Structure** | `ls ./producer`<br>`ls ./consumer_one`<br>...  |
+| **Verify Dockerfile Paths**  | Check `COPY` commands in Dockerfiles            |
+| **Check `.dockerignore`**    | `cat .dockerignore`                             |
+| **Rebuild Docker Images**    | `docker builder prune`<br>`docker build -t my-producer ./producer`<br>`docker build -t my-consumer-one ./consumer_one`<br>... |
+| **Example Dockerfiles**      | Inspect `Dockerfile` for `my-producer`, `my-consumer-one`, etc. |
+| **Validate Build Command**   | `docker build -t my-producer ./producer`       |
+| **Verify Docker Build Context** | `pwd` to verify directory location             |
+
+This table should help you systematically troubleshoot and resolve Docker image build issues.
+
+Example
+```
+next add the image upon successfull build each seperatly. change image line and policy line in kubernetes file.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: consumer-four
+  name: consumer-four
+  namespace: Kompose_StatefulSet  # [Namespace added here]
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: consumer-four
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: consumer-four
+    spec:
+      containers:
+      - env:
+        - name: RABBITMQ_HOST
+          value: rabbitmq
+        - name: RABBITMQ_PASSWORD
+          value: guest
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USERNAME
+          value: guest
+        image: bharathoptdocker/python-consumer-four:v1.0.0  # [Updated image tag]
+        imagePullPolicy: "Always"   # [Updated image tag to "Always"]
+        name: consumer-four
+        resources: {}
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
+status: {}
+```
+
+
+
 2. Apply the Manifests
 After organizing and modifying the manifests, apply them to your Kubernetes cluster:
 
@@ -312,4 +435,32 @@ kubectl get pods
 kubectl get svc
 kubectl get statefulsets
 kubectl get pvc
+```
+------------------------------------------ends------------------------------------------------------
+# Additional
+
+Find and replace command ubuntu:
+file and replace all name using below command.
+SED command in UNIX stands for stream editor and it can perform lots of functions on file like searching, find and replace, insertion or deletion. Though most common use of SED command in UNIX is for substitution or for find and replace
+ ```
+find ./kubernetes/manifest -type f -exec sed -i 's/old_text/new_text/g' {} +
+```
+find ./kubernetes/manifest -type f -exec sed -i 's/Kompose_StatefulSet/kompose-statefulset/g' {} +
+This command finds all files within the ./kubernetes/manifest directory and its subdirectories, and then uses sed to replace the text Kompose_StatefulSet with kompose-statefulset in each file.
+ 
+check changes
+```
+grep -r "kompose-statefulset" ./kubernetes/manifest
+ ```
+
+
+find and add any line using below command at once.
+ ```
+find ./kubernetes/manifest -type f -exec sed -i '/metadata:/a \  namespace: kompose-statefulset' {} +
+ Explanation
+```
+
+find ./kubernetes/manifest -type f: Find all files in the ./kubernetes/manifest directory and its subdirectories.
+```
+-exec sed -i '/metadata:/a \ namespace: kompose-statefulset' {} +: For each file, use sed to append the line namespace: kompose-statefulset after every occurrence of the line metadata:.
 ```
