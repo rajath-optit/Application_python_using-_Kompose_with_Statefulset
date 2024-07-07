@@ -566,6 +566,8 @@ kubectl exec -it my-service-0 -- sh
 ```
 
 These tests cover various aspects of a StatefulSet's functionality, including pod management, networking, storage, and updates.
+
+
 ------------------------------------------end---------------------------------------------------
 
 check spring application next :)
