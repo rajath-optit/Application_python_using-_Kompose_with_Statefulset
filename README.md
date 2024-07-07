@@ -479,3 +479,14 @@ find ./kubernetes/manifest -type f: Find all files in the ./kubernetes/manifest 
 ```
 -exec sed -i '/metadata:/a \ namespace: kompose-statefulset' {} +: For each file, use sed to append the line namespace: kompose-statefulset after every occurrence of the line metadata:.
 ```
+
+output:
+check pod/namespace status using kubectl commands or k9s
+![image](https://github.com/rajath-optit/Application_python_using-_Kompose_with_Statefulset/assets/128474801/724fbc47-de56-4ef1-936a-7191107ee791)
+
+![image](https://github.com/rajath-optit/Application_python_using-_Kompose_with_Statefulset/assets/128474801/db7f77f5-bc74-4e46-9eaa-c9ee4581fc6a)
+
+running
+------------------------------------------end---------------------------------------------------
+
+check spring application next :)
