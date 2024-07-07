@@ -33,8 +33,8 @@ spec:
           value: "5672"
         - name: RABBITMQ_USERNAME
           value: guest
-        image: consumer-two
-        imagePullPolicy: ""
+        image: bharathoptdocker/python-consumer-two:v1.0.0
+        imagePullPolicy: "Always"
         name: consumer-two
         resources: {}
       restartPolicy: Always
