@@ -1,6 +1,25 @@
 # Microservice communication with RabbitMQ using compose
 To convert your Docker Compose setup to Kubernetes StatefulSets using `kompose`, follow these steps:
 
+# NOTE:
+ ```
+A StatefulSet is used in Kubernetes for applications that require stable and unique network identifiers, persistent storage, and ordered, graceful deployment and scaling. In your setup, the MySQL database is a suitable candidate for a StatefulSet due to the following reasons:
+
+Reasons for Using StatefulSet for MySQL:
+Persistent Storage:
+
+MySQL requires persistent storage to ensure data durability and consistency. When a MySQL pod is restarted, the data must be preserved. StatefulSets, combined with Persistent Volume Claims (PVCs), ensure that each pod gets its own persistent storage that remains consistent across restarts.
+Stable Network Identifiers:
+
+StatefulSets provide stable network identities (DNS names) for each of their pods. This is crucial for databases like MySQL where the identity of each node needs to remain stable for the database cluster to function correctly.
+Ordered Deployment and Scaling:
+
+StatefulSets ensure that pods are started, stopped, and scaled in an ordered sequence. This ordered deployment and scaling are important for maintaining the consistency and integrity of the MySQL database.
+Unique Pod Identity:
+
+Each pod in a StatefulSet has a unique identity that is comprised of a stable, unique hostname. This identity is important for applications like MySQL that might require each instance to be uniquely identifiable.
+```
+
 1. **Install Kompose**: Ensure you have `kompose` installed. You can install it via the following command:
     ```sh
     curl -L https://github.com/kubernetes/kompose/releases/download/v1.25.0/kompose-linux-amd64 -o kompose
