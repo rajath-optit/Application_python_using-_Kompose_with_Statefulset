@@ -8,6 +8,7 @@ metadata:
   labels:
     io.kompose.service: rabbitmq
   name: rabbitmq
+  namespace: Kompose_StatefulSet
 spec:
   ports:
   - name: "5672"

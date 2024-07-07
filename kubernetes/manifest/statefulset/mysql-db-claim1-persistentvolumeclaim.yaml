@@ -5,6 +5,7 @@ metadata:
   labels:
     io.kompose.service: mysql-db-claim1
   name: mysql-db-claim1
+  namespace: Kompose_StatefulSet
 spec:
   accessModes:
   - ReadWriteOnce
