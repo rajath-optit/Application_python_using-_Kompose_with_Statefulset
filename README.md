@@ -1,6 +1,5 @@
 # Microservice communication with RabbitMQ using compose
-
-![image](https://github.com/rajath-optit/Application_python_using-_Kompose_with_Statefulset/assets/128474801/0292ba2d-155a-4311-8450-78deabed9e27)
+![image](https://github.com/rajath-optit/Application_python_using-_Kompose_with_Statefulset/assets/128474801/07f6d1db-18a3-4c32-bc3f-38623d927961)
 
 # NOTE: This is basic kompose usage example with statefulSet, any more adjustment can be made as per your requirement.This should help beginners understand how to get started with your application and the role of StatefulSets in Kubernetes.
 
